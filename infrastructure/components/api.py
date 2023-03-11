@@ -13,7 +13,7 @@ class Api(Construct):
         default_lambda = _lambda.Function(
             self, 'default',
             runtime=_lambda.Runtime.PYTHON_3_8,
-            code=_lambda.Code.from_asset('lambdas/api_endpoints/src'),
+            code=_lambda.Code.from_asset('api_endpoints'),
             handler='default.handler'
         )
 
@@ -28,7 +28,7 @@ class Api(Construct):
         get_example_lambda = _lambda.Function(
             self, 'get_example',
             runtime=_lambda.Runtime.PYTHON_3_8,
-            code=_lambda.Code.from_asset('lambdas/api_endpoints/src'),
+            code=_lambda.Code.from_asset('api_endpoints'),
             handler='get_example.handler',
         )
 
