@@ -36,6 +36,6 @@ class Api(Construct):
         bucket.grant_read_write(get_example_lambda)
 
         # API routes
-        # /prediction
+        # some-url.com/example
         example_route = api.root.add_resource('example')
         example_route.add_method('GET', apigw.LambdaIntegration(get_example_lambda))
