@@ -12,13 +12,13 @@ def main(event):
 
     payload = API.parse_payload(event)
 
-    account_id = payload['queryParameters']['account_id']
+    #account_id = payload['queryParameters']['account_id']
     
-    account = Account(account_id=account_id)
+    account = Account()
     user_pool = Cognito(pool_id=os.environ['userpool_id'], client_id = os.environ['client_id'])
     dynamo = Dynamo(table_name=os.environ['user_table'])
     
-    role = payload['body']['role'] #0, 1, 2
+    role = payload["body"]["role"] #0, 1, 2
     role = Role(role)
 
     user = User(
@@ -31,13 +31,14 @@ def main(event):
         password = payload["body"]["password"],
         )
     
-    user_pool.create_user(user)
+    sign_up_result = user_pool.sign_up(user)
     
     dynamo = Dynamo(table_name=os.environ['user_table'])
 
     dynamo.put_item(vars(user))
 
     result = dict(
+        auth = sign_up_result.get('AuthenticationResult'),
         account_id = account.record_ts_id,
         username = user.nickname,
         first = user.first,
@@ -53,15 +54,15 @@ def handler(event, context):
         
     
 if __name__ == "__main__":
-    os.environ['userpool_id'] = "ap-southeast-2_VBY3YR6zP"
-    os.environ['client_id'] = "1m2k4aevejsj37uvej971dqj55"
-    os.environ['user_table'] = 'dolfinStack-DolfinUserTable9DD22DDB-ZNR23DWVVW7F'
+    os.environ['userpool_id'] = "ap-southeast-2_VFb1ZYdES"
+    os.environ['client_id'] = "2dlt20dc56pol6kdj2jhs9aogu"
+    os.environ['user_table'] = 'dolfinStack-DolfinUserTable9DD22DDB-16KREE83F8Y57'
 
     body = {
         "first": "fakejarrod",
         "last": "fakemccarthy",
         "nickname": "fakenickname",
-        "email": "{some-email}",
+        "email": "jmdifferent@gmail.com",
         "password": "fakep@ssword1234",
         "role": 1
     }
@@ -70,7 +71,7 @@ if __name__ == "__main__":
         'httpMethod': 'POST',
         'resource': '/auth/account/user',
         'queryParameters': {
-            "account_id": "ts#2023-03-17 14:04:20.164224-id#071292c7-564b-46dc-ad5e-3daae4507592"
+            #"account_id": "ts#2023-03-17 14:04:20.164224-id#071292c7-564b-46dc-ad5e-3daae4507592"
         },
         'pathParameters': {},
         'body' : json.dumps(body)

@@ -11,7 +11,7 @@ class API:
 
     def parse_payload(event: Dict[str, Any]):
         payload = {}
-        if event.get("queryParameters"): payload["queryParameters"] = event["queryParameters"]
+        if event.get("queryStringParameters"): payload["queryStringParameters"] = event["queryStringParameters"]
         if event.get("pathParameters"): payload["pathParameters"] = event["pathParameters"]
         if event.get("body"): payload["body"] = json.loads(event["body"])
         return payload

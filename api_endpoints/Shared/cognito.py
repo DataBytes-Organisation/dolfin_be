@@ -126,7 +126,8 @@ class Cognito:
 
     def sign_up(self, user: User): 
         response = self.create_user(user)
-        cognito_username = response['User'].get('Username')
+        #cognito_username = response['User'].get('Username')
+        return self.sign_in(user)
 
 
     def get_JWT_from_code(self, code):
@@ -141,11 +142,11 @@ class Cognito:
         except Exception as e:
             raise Exception(f"Error {e}: Couldn't get JWT from auth code")
 
-    def code_to_jwt_dict(self, code):
-        tokens = self.get_JWT_from_code(code)
-        refresh_token = tokens['refresh_token']
-        access_token = tokens['access_token']
-        JWT = tokens['id_token']
-        response = requests.request("GET", self.cognito_known_tokens_url, headers={}, data={})
-        public = json.loads(response.text) #loads a json str into dict
-        return jwt.decode(JWT, public) #decode jwt 
+    # def code_to_jwt_dict(self, code):
+    #     tokens = self.get_JWT_from_code(code)
+    #     refresh_token = tokens['refresh_token']
+    #     access_token = tokens['access_token']
+    #     JWT = tokens['id_token']
+    #     response = requests.request("GET", self.cognito_known_tokens_url, headers={}, data={})
+    #     public = json.loads(response.text) #loads a json str into dict
+    #     return jwt.decode(JWT, public) #decode jwt 

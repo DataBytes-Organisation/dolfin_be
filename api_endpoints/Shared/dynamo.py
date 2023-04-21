@@ -5,6 +5,13 @@ class Dynamo:
         ddb = boto3.resource('dynamodb')
         self.table = ddb.Table(table_name)
 
+    def get_user(self, email: str):
+        users = self.get_items(column_name='record_type', column_value="type#user")
+        for u in users:
+            if u["email"] == email:
+                return u
+        raise Exception(f"User email {email} was not found")
+
     def _build_update_expression(self, params: dict):
         '''Constructs the update expression
         Input of params = { 'att1': 'val1', 'att2': 'val2' }
@@ -26,15 +33,24 @@ class Dynamo:
         
         return "".join(update_expression)[:-1], update_names, update_values
     
-    def get_items(self, index_name: str, column_name: str, column_value: str) -> list:
-        items = self.table.query(
-            IndexName=index_name,
-            KeyConditionExpression=f"#{column_name}=:{column_name}",
-            ExpressionAttributeValues={
-                f':{column_name}': f'{column_value}',
-            },
-            ExpressionAttributeNames= { f"#{column_name}": f"{column_name}" }
-        ).get('Items')
+    def get_items(self, column_name: str, column_value: str, index_name: str = None) -> list:
+        if index_name:            
+            items = self.table.query(
+                IndexName=index_name,
+                KeyConditionExpression=f"#{column_name}=:{column_name}",
+                ExpressionAttributeValues={
+                    f':{column_name}': f'{column_value}',
+                },
+                ExpressionAttributeNames= { f"#{column_name}": f"{column_name}" }
+            ).get('Items')
+        else:
+            items = self.table.query(
+                KeyConditionExpression=f"#{column_name}=:{column_name}",
+                ExpressionAttributeValues={
+                    f':{column_name}': f'{column_value}',
+                },
+                ExpressionAttributeNames= { f"#{column_name}": f"{column_name}" }
+            ).get('Items')
         return items
     
     def put_item(self, item: dict):

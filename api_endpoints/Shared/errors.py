@@ -3,6 +3,9 @@ from Shared.api import API
 class ClientError(Exception):
     pass
 
+class UnAuthorisedError(Exception):
+    pass
+
 class NotFoundError(Exception):
     pass
 
@@ -20,6 +23,11 @@ def handle_error_response(func):
         except ClientError as e:
             return API.response(
                 code = 400, 
+                body = json.dumps({"Error": f"{e}"}) 
+            )
+        except UnAuthorisedError as e:
+            return API.response(
+                code = 401, 
                 body = json.dumps({"Error": f"{e}"}) 
             )
         except NotFoundError as e:
