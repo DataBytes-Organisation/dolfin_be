@@ -48,4 +48,8 @@ class User:
         self.password = password
 
 
+class BankAccount:
+    def __init__(self) -> None:
+        pass
+
         
