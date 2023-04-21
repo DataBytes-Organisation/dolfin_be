@@ -2,12 +2,14 @@ import json
 import os
 from Shared.errors import ClientError, NotFoundError, ServerError
 from Shared.api import API
-from Shared.s3 import S3
+from Shared.auth import Authorizer
 
 def main(event):
-    s3 = S3()
-    some_s3_location = event["file_location"]
-    result = s3.get_file(some_s3_location)
+    payload = API.parse_payload(event)
+    q_params = payload["query_parameters"]
+    body = payload["body"]
+    if ('key_id' in q_params.keys()):
+        result = Authorizer.update_key(key_id=q_params['key_id'], attributes=body)
     return result
 
 
@@ -51,9 +53,7 @@ if __name__ == "__main__":
     event = {
         'httpMethod': 'GET',
         'resource': '/example',
-        'queryStringParameters': {
-            "file_location": "some_location"
-        },
+        'queryStringParameters': {},
         'pathParameters': {},
         'body' : json.dumps(body)
     }
