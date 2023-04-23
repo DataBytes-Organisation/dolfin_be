@@ -98,8 +98,15 @@ class Api(Construct):
             handler=authorizer_lambda
         )
 
-        # cognito_authorizer = apigw.CognitoUserPoolsAuthorizer(self, f"{self.stack_name}CognitoAuthorizer",
-        #     cognito_user_pools=[user_pool]
+        cognito_authorizer = apigw.CognitoUserPoolsAuthorizer(self, f"{self.stack_name}CognitoAuthorizer",
+            cognito_user_pools=[user_pool],
+        )
+
+        # cognito_authorizer = apigw.CfnAuthorizer(self, "adminSectionAuth", rest_api_id=api.rest_api_id,
+        #     type='COGNITO_USER_POOLS', 
+        #     identity_source='method.request.header.Authorization',
+        #     provider_arns=[user_pool.user_pool_arn],
+        #     name="adminSectionAuth"
         # )
 
         access_table.grant_read_write_data(authorizer_lambda)
@@ -145,6 +152,18 @@ class Api(Construct):
         sign_in_lambda.add_to_role_policy(ses_policy)
         sign_in_lambda.add_to_role_policy(cognito_policy)
 
+        basiq_get_balance_lambda = create_lambda(
+            scope=scope,
+            name=f"{self.stack_name}GetCurrentBalance",
+            python_file = "get_current_balance", 
+            environment = common_lambda_environment, 
+            layers = [common_layer]
+        )
+
+        #access_table.grant_read_write_data(basiq_get_balance_lambda)
+        user_table.grant_read_write_data(basiq_get_balance_lambda)        
+        basiq_get_balance_lambda.add_to_role_policy(ses_policy)
+        basiq_get_balance_lambda.add_to_role_policy(cognito_policy)
 
         # Lambdas
         get_example_lambda = _lambda.Function(
@@ -180,3 +199,11 @@ class Api(Construct):
         # /
         example_route = api.root.add_resource('example')
         example_route.add_method('GET', apigw.LambdaIntegration(get_example_lambda), authorizer=authorizer)
+
+        basiq = api.root.add_resource('basiq')
+        basiq_balance = basiq.add_resource('balance')
+        basiq_balance.add_method('GET', 
+            apigw.LambdaIntegration(basiq_get_balance_lambda), 
+            authorizer=cognito_authorizer, 
+            authorization_type=apigw.AuthorizationType.COGNITO,
+        )

@@ -43,7 +43,7 @@ class InfrastructureStack(Stack):
             user_table=user_table,
             access_table=access_table,
             user_pool_id=user_pool.user_pool_id,
-            user_pool=user_pool,
+            user_pool=user_pool.user_pool,
             client_id=user_pool.client_id,
             bucket=data_bucket,
             app_table=app_table,
