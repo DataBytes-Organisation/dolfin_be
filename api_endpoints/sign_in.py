@@ -28,9 +28,8 @@ def main(event):
         last = user["last"],
         nickname = user["nickname"],
         email = user["email"],
-        password = user["password"],
+        password = password_attempt,
         )
-    if password_attempt != user.password: raise UnAuthorisedError("Passwords dont match") # this isnt right, this should happen with a cognito method i just cant find the auth flow rn
 
     # create Admin user in Cognito
     sign_in_result = user_pool.sign_in(user) # working 
@@ -52,9 +51,9 @@ def handler(event, context):
     return main(event)
 
 if __name__ == "__main__":
-    os.environ['userpool_id'] = "ap-southeast-2_VFb1ZYdES"
-    os.environ['client_id'] = "2dlt20dc56pol6kdj2jhs9aogu"
-    os.environ['user_table'] = 'dolfinStack-DolfinUserTable9DD22DDB-16KREE83F8Y57'
+    os.environ['userpool_id'] = "ap-southeast-2_k6FlfaME8"
+    os.environ['client_id'] = "1sgt1t8bga7a6ohmd35j77oltj"
+    os.environ['user_table'] = 'dolfinStack-DolfinUserTable9DD22DDB-18YAIXIZDEQ14'
 
     # body = {
     #     "first": "fakefirst",
@@ -69,8 +68,8 @@ if __name__ == "__main__":
         'httpMethod': 'POST',
         'resource': '/auth/account',
         'queryStringParameters': {
-            "email": "jarrodmccarthy12@gmail.com",
-            "password": "fakep@ssword1234"
+            "email": "jmdifferent@gmail.com",
+            "password": "fakep@ssword123"
         },
         'pathParameters': {},
         #'body' : json.dumps(body)

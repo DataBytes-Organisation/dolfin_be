@@ -88,7 +88,7 @@ class Cognito:
             )
             return response
         except Exception as e:
-            raise Exception(f"Error {e}: Issue during initialising auth for user {cognito_username}")
+            raise Exception(f"Error {e}: Issue with Authentication for {cognito_username}, likely incorrect credentials")
 
     def _respond_to_auth_challenge(self, init_auth_response, user: User, cognito_username: str): 
         """Respond to Auth Challenge -> Cognito Tokens"""

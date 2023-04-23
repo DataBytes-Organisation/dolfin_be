@@ -33,7 +33,7 @@ def main(event):
     dynamo.put_item(vars(account))
 
     # create admin user in dynamo
-    dynamo.put_item(vars(admin_user))
+    dynamo.put_item(admin_user.to_dynamo())
 
     result = dict(
         auth = sign_up_result.get('AuthenticationResult'),

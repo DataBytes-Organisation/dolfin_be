@@ -35,7 +35,7 @@ def main(event):
     
     dynamo = Dynamo(table_name=os.environ['user_table'])
 
-    dynamo.put_item(vars(user))
+    dynamo.put_item(user.to_dynamo())
 
     result = dict(
         auth = sign_up_result.get('AuthenticationResult'),
@@ -54,9 +54,9 @@ def handler(event, context):
         
     
 if __name__ == "__main__":
-    os.environ['userpool_id'] = "ap-southeast-2_VFb1ZYdES"
-    os.environ['client_id'] = "2dlt20dc56pol6kdj2jhs9aogu"
-    os.environ['user_table'] = 'dolfinStack-DolfinUserTable9DD22DDB-16KREE83F8Y57'
+    os.environ['userpool_id'] = "ap-southeast-2_k6FlfaME8"
+    os.environ['client_id'] = "1sgt1t8bga7a6ohmd35j77oltj"
+    os.environ['user_table'] = 'dolfinStack-DolfinUserTable9DD22DDB-18YAIXIZDEQ14'
 
     body = {
         "first": "fakejarrod",

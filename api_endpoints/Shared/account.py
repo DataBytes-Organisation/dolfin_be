@@ -1,4 +1,5 @@
 from datetime import datetime
+from typing import Optional
 from uuid import uuid4
 
 class Account:
@@ -34,7 +35,7 @@ class User:
                 last: str,
                 nickname: str, 
                 email: str,
-                password: str,
+                password: Optional[str] = None,
                 record_type: str = "type#user",
             ) -> None:
         self.record_type = record_type
@@ -46,6 +47,11 @@ class User:
         self.nickname = nickname 
         self.email = email
         self.password = password
+
+    def to_dynamo(self):
+        user_dict_representation = vars(self)
+        user_dict_representation.pop("password")
+        return user_dict_representation
 
 
 class BankAccount:
