@@ -1,11 +1,16 @@
+import pandas as pd
 from sklearn.ensemble import VotingRegressor, LogisticRegression, SVC, LinearRegression, RandomForestRegressor, KNeighborsRegressor
 
-#TODO: Get the values for the features
+#TODO: Get the values for the features from the API
+transactions = pd.read_csv("/SavingsAI/Dummy Data/Transactions_2022Q1.csv")
+
+transactions
+
 
 #Add new models here, you can seperately find hyperparameters to best optimse them
 models = [
     ('lr', LogisticRegression()),
-    ('svm'), SVC())
+    ('svm', SVC())
 ]
 
 #This is THE model
