@@ -10,7 +10,6 @@ from Shared.account import User, Role, Account
 def main(event):
     """This endpoint is the sign ui end point
     you must use the sign up end point before this will work
-    Please ignore how trash this is, it will be fixed 😂
     """
     payload = API.parse_payload(event)
     account = Account()
@@ -54,15 +53,6 @@ if __name__ == "__main__":
     os.environ['userpool_id'] = "ap-southeast-2_k6FlfaME8"
     os.environ['client_id'] = "1sgt1t8bga7a6ohmd35j77oltj"
     os.environ['user_table'] = 'dolfinStack-DolfinUserTable9DD22DDB-18YAIXIZDEQ14'
-
-    # body = {
-    #     "first": "fakefirst",
-    #     "last": "fakelast",
-    #     "nickname": "fakenickname",
-    #     "email": "jarrodmccarthy12@gmail.com",
-    #     "password": "fakep@ssword1234",
-    #     "role": 0
-    # }
 
     event = {
         'httpMethod': 'POST',

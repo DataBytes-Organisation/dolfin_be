@@ -1,3 +1,4 @@
+from typing import List
 from constructs import Construct
 from aws_cdk import (
     aws_apigateway as apigw,
@@ -9,6 +10,19 @@ from aws_cdk import (
     aws_logs as logs,
     aws_iam as iam,
     aws_dynamodb as ddb,
+    aws_cognito as cognito,
+)
+
+
+def create_lambda(scope: Construct, name: str, python_file: str, environment: dict, layers: List[aws_lambda_alpha.PythonLayerVersion]): 
+    return _lambda.Function(
+    scope, f"{name}",
+    runtime=_lambda.Runtime.PYTHON_3_8,
+    code=_lambda.Code.from_asset('api_endpoints'),
+    handler=f'{python_file}.handler',
+    layers=layers,
+    environment=environment,
+    log_retention=logs.RetentionDays.ONE_WEEK
 )
 
 class Api(Construct):
@@ -18,6 +32,7 @@ class Api(Construct):
                 user_table: ddb.Table, 
                 access_table: ddb.Table,
                 user_pool_id: str, 
+                user_pool: cognito.UserPool,
                 client_id: str, 
                 bucket: s3.Bucket, 
                 app_table: ddb.Table,
@@ -26,6 +41,8 @@ class Api(Construct):
         super().__init__(scope, construct_id, **kwargs)
         self.stack_name = stack_name
 
+
+
         common_layer = aws_lambda_alpha.PythonLayerVersion(
             self,
             'CommonLayer',
@@ -33,6 +50,7 @@ class Api(Construct):
             compatible_runtimes=[_lambda.Runtime.PYTHON_3_8],
             removal_policy=RemovalPolicy.DESTROY,
         )
+
 
         #* Policies
         # Policy to send emails via ses
@@ -54,6 +72,13 @@ class Api(Construct):
             handler='default.handler'
         )
 
+        common_lambda_environment = {
+            "user_table": user_table.table_name,
+            "userpool_id": user_pool_id,
+            "client_id": client_id,
+            "access_table": access_table.table_name,
+        }
+
         #API gw instance
         api = apigw.LambdaRestApi(
             self, construct_id,
@@ -61,83 +86,65 @@ class Api(Construct):
             proxy=False
         )
 
-        authorizer_lambda = _lambda.Function(
-            self, f"{self.stack_name}AccessAuth",
-            runtime=_lambda.Runtime.PYTHON_3_8,
-            code=_lambda.Code.from_asset('api_endpoints'),
-            handler='authorizer.handler',
-            timeout=Duration.seconds(30),
-            layers=[common_layer],
-            environment={
-                "ACCESS_TABLE": access_table.table_name,
-            },
-            log_retention=logs.RetentionDays.ONE_WEEK
+        authorizer_lambda = create_lambda(
+            scope=scope,
+            name=f"{self.stack_name}AccessAuth", 
+            python_file = "authorizer", 
+            environment = common_lambda_environment, 
+            layers = [common_layer]
         )
 
         authorizer = apigw.TokenAuthorizer(self, f"{self.stack_name}ApiAuthorizer",
             handler=authorizer_lambda
         )
 
+        # cognito_authorizer = apigw.CognitoUserPoolsAuthorizer(self, f"{self.stack_name}CognitoAuthorizer",
+        #     cognito_user_pools=[user_pool]
+        # )
+
         access_table.grant_read_write_data(authorizer_lambda)
 
         # adds account with admin user
-        post_account_lambda = _lambda.Function(
-            self, f"{self.stack_name}PostAccount",
-            runtime=_lambda.Runtime.PYTHON_3_8,
-            code=_lambda.Code.from_asset('api_endpoints'),
-            handler='post_account.handler',
-            layers=[common_layer],
-            environment={
-                "user_table": user_table.table_name,
-                "userpool_id": user_pool_id,
-                "client_id": client_id,
-                "access_table": access_table.table_name,
-            },
-            log_retention=logs.RetentionDays.ONE_WEEK
+        post_account_lambda = create_lambda(
+            scope=scope,
+            name=f"{self.stack_name}PostAccount",
+            python_file = "post_account", 
+            environment = common_lambda_environment, 
+            layers = [common_layer]
         )
+
         access_table.grant_read_write_data(post_account_lambda)
         user_table.grant_read_write_data(post_account_lambda)        
         post_account_lambda.add_to_role_policy(ses_policy)
         post_account_lambda.add_to_role_policy(cognito_policy)
 
         # adds user to existing account
-        post_user_lambda = _lambda.Function(
-            self, f"{self.stack_name}PostUser",
-            runtime=_lambda.Runtime.PYTHON_3_8,
-            code=_lambda.Code.from_asset('api_endpoints'),
-            handler='sign_up.handler',
-            layers=[common_layer],
-            environment={
-                "user_table": user_table.table_name,
-                "userpool_id": user_pool_id,
-                "client_id": client_id,
-                "access_table": access_table.table_name,
-            },
-            log_retention=logs.RetentionDays.ONE_WEEK
+        post_user_lambda = create_lambda(
+            scope=scope,
+            name=f"{self.stack_name}PostUser",
+            python_file = "sign_up", 
+            environment = common_lambda_environment, 
+            layers = [common_layer]
         )
+
         access_table.grant_read_write_data(post_user_lambda)
         user_table.grant_read_write_data(post_user_lambda)        
         post_user_lambda.add_to_role_policy(ses_policy)
         post_user_lambda.add_to_role_policy(cognito_policy)
 
-        sign_in_lambda = _lambda.Function(
-            self, f"{self.stack_name}SignIn",
-            runtime=_lambda.Runtime.PYTHON_3_8,
-            code=_lambda.Code.from_asset('api_endpoints'),
-            handler='sign_in.handler',
-            layers=[common_layer],
-            environment={
-                "user_table": user_table.table_name,
-                "userpool_id": user_pool_id,
-                "client_id": client_id,
-                "access_table": access_table.table_name,
-            },
-            log_retention=logs.RetentionDays.ONE_WEEK
+        sign_in_lambda = create_lambda(
+            scope=scope,
+            name=f"{self.stack_name}SignIn",
+            python_file = "sign_in", 
+            environment = common_lambda_environment, 
+            layers = [common_layer]
         )
+
         access_table.grant_read_write_data(sign_in_lambda)
         user_table.grant_read_write_data(sign_in_lambda)        
         sign_in_lambda.add_to_role_policy(ses_policy)
         sign_in_lambda.add_to_role_policy(cognito_policy)
+
 
         # Lambdas
         get_example_lambda = _lambda.Function(
