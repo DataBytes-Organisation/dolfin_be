@@ -160,10 +160,22 @@ class Api(Construct):
             layers = [common_layer]
         )
 
+        basiq_get_transactions_lambda = create_lambda(
+            scope=scope,
+            name=f"{self.stack_name}GetAllTransactionsForUser",
+            python_file = "get_all_transactions_for_user", 
+            environment = common_lambda_environment, 
+            layers = [common_layer]
+        )
+
         #access_table.grant_read_write_data(basiq_get_balance_lambda)
         user_table.grant_read_write_data(basiq_get_balance_lambda)        
         basiq_get_balance_lambda.add_to_role_policy(ses_policy)
         basiq_get_balance_lambda.add_to_role_policy(cognito_policy)
+
+        user_table.grant_read_write_data(basiq_get_transactions_lambda)        
+        basiq_get_transactions_lambda.add_to_role_policy(ses_policy)
+        basiq_get_transactions_lambda.add_to_role_policy(cognito_policy)
 
         # Lambdas
         get_example_lambda = _lambda.Function(
@@ -204,6 +216,13 @@ class Api(Construct):
         basiq_balance = basiq.add_resource('balance')
         basiq_balance.add_method('GET', 
             apigw.LambdaIntegration(basiq_get_balance_lambda), 
+            authorizer=cognito_authorizer, 
+            authorization_type=apigw.AuthorizationType.COGNITO,
+        )
+
+        basiq_transactions = basiq.add_resource('transactions')
+        basiq_transactions.add_method('GET',
+            apigw.LambdaIntegration(basiq_get_transactions_lambda), 
             authorizer=cognito_authorizer, 
             authorization_type=apigw.AuthorizationType.COGNITO,
         )
