@@ -152,6 +152,18 @@ class Api(Construct):
         sign_in_lambda.add_to_role_policy(ses_policy)
         sign_in_lambda.add_to_role_policy(cognito_policy)
 
+        refresh_token_lambda = create_lambda(
+            scope=scope,
+            name=f"{self.stack_name}RefreshToken",
+            python_file = "get_refresh_token", 
+            environment = common_lambda_environment, 
+            layers = [common_layer]
+        )
+
+        access_table.grant_read_write_data(refresh_token_lambda)       
+        refresh_token_lambda.add_to_role_policy(ses_policy)
+        refresh_token_lambda.add_to_role_policy(cognito_policy)
+
         basiq_get_balance_lambda = create_lambda(
             scope=scope,
             name=f"{self.stack_name}GetCurrentBalance",
@@ -196,6 +208,8 @@ class Api(Construct):
         auth_apikey = auth.add_resource('apikey')
         # auth/token
         auth_token = auth.add_resource('token')
+        auth_token_refresh = auth_token.add_resource('refresh')
+        auth_token_refresh.add_method('GET', apigw.LambdaIntegration(refresh_token_lambda), authorizer=cognito_authorizer, authorization_type=apigw.AuthorizationType.COGNITO)
         # /
         example_route = api.root.add_resource('example')
         example_route.add_method('GET', apigw.LambdaIntegration(get_example_lambda), authorizer=authorizer)

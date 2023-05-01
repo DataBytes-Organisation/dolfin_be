@@ -119,7 +119,19 @@ class Cognito:
         response = self._respond_to_auth_challenge(init_auth_response, user, cognito_username)
         return response
         
-
+    def refresh_token(self, refresh_token: str):
+        try:
+            result = self.client.initiate_auth(
+                ClientId=self.client_id,
+                AuthFlow='REFRESH_TOKEN_AUTH',
+                AuthParameters={
+                    'REFRESH_TOKEN': refresh_token,
+                }
+            )
+            return result
+        except Exception as e:
+            raise Exception(f"Error: {e}")
+        
     def sign_in(self, user: User):
         get_token_response = self.get_token(user, user.email)
         return get_token_response
