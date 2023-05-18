@@ -5,8 +5,8 @@ from Shared.api import API
 from Shared.basiq import Basiq
 
 
-
 def main(event):
+    #Adapted from Jerry's code
     print('request: {}'.format(json.dumps(event)))
     payload = API.parse_payload(event)
     # get the user details from the user table, 
@@ -16,7 +16,7 @@ def main(event):
 
     access_token = basiq.get_auth_token()
 
-    response = basiq.get_accounts(access_token)
+    response = basiq.get_all_transactions_for_user(access_token)
 
     return response
 

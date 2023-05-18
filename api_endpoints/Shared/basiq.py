@@ -34,3 +34,14 @@ class Basiq:
 
         response = requests.get(url, headers=headers)
         return json.loads(response.text)
+
+    def get_all_transactions_for_user(self, access_token):
+        url = f"{self.base_url}users/{self.basiq_id}/transactions"
+
+        headers = {
+            "accept": "application/json",
+            "authorization": access_token,
+            }
+        
+        response = requests.get(url, headers=headers)
+        return json.loads(response.text)
