@@ -1,21 +1,20 @@
-import pandas as pd
-from sklearn.ensemble import VotingRegressor, LogisticRegression, SVC, LinearRegression, RandomForestRegressor, KNeighborsRegressor
-
-#TODO: Get the values for the features from the API
-transactions = pd.read_csv("/SavingsAI/Dummy Data/Transactions_2022Q1.csv")
-
-transactions
-
+#IGNORE THIS FILE, REFER TO .ipynb INSTEAD
 
 #Add new models here, you can seperately find hyperparameters to best optimse them
-models = [
-    ('lr', LogisticRegression()),
-    ('svm', SVC())
-]
 
-#This is THE model
-ensembleModel = VotingRegressor(models)
+# from sklearn.ensemble import VotingRegressor, LogisticRegression, SVC, LinearRegression, RandomForestRegressor, KNeighborsRegressor
 
-#TODO: Train model
+# #TODO: Get the values for the features
 
-#TODO: Evaluate model (k-folds?)
+# #Add new models here, you can seperately find hyperparameters to best optimse them
+# models = [
+#     ('lr', LogisticRegression()),
+#     ('svm', SVC())
+# ]
+
+# #This is THE model
+# ensembleModel = VotingRegressor(models)
+
+# #TODO: Train model
+
+# #TODO: Evaluate model (k-folds?)

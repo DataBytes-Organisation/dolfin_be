@@ -1,26 +1,25 @@
-import json
 import os
 from Shared.errors import handle_error_response
-from Shared.api import API
+from Shared.auth import Authorizer
+import json 
 
 
 def main(event):
-    print('request: {}'.format(json.dumps(event)))
-    query_params = event.get('queryStringParameters')
-    path_params = event.get('pathParameters')
-    request_body = {}
-    if 'body' in event and event['body'] != None:
-        request_body = json.loads(event['body']) # only works for json.dumps(body)
-
-    result = {} #do stuff here to get result
-    return result
-
+    try:
+        arn = event['methodArn']
+        method_arn = "{}".format(str(arn).split('/')[0])
+        Auth = Authorizer(access_table=os.environ['ACCESS_TABLE'], endpoint_arn=method_arn)
+        auth = Auth._check_token(token=event['authorizationToken'])
+    except Exception as e:
+        auth = "Deny"
+    auth_response = Auth.build_response(auth = auth)
+    return auth_response
 
 @handle_error_response
 def handler(event, context):
-    return main(event)
-        
-    
+    return main(event)        
+
+
 if __name__ == "__main__":
     os.environ["some_env_var"] = "env_var_value"
 

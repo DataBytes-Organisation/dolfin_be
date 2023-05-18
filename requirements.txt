@@ -1,4 +1,5 @@
 attrs==21.4.0
+Authlib==1.2.0
 aws-cdk-lib==2.17.0
 aws-cdk.aws-lambda-python-alpha==2.17.0a0
 awslambdaric==2.0.1
@@ -6,9 +7,11 @@ boto3==1.21.8
 botocore==1.24.8
 cattrs==1.10.0
 certifi==2021.10.8
+cffi==1.15.1
 charset-normalizer==2.0.12
 colorama==0.4.6
 constructs==10.0.54
+cryptography==40.0.2
 cycler==0.11.0
 exceptiongroup==1.1.0
 fonttools==4.29.1
@@ -26,6 +29,7 @@ packaging==21.3
 pluggy==1.0.0
 publication==0.0.3
 pycoingecko==2.2.0
+pycparser==2.21
 pyparsing==3.0.7
 pytest==7.2.2
 python-dateutil==2.8.2
