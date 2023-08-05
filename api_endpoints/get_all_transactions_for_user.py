@@ -2,18 +2,23 @@ import json
 import os
 from Shared.errors import handle_error_response
 from Shared.api import API
+from Shared.basiq import Basiq
 
 
 def main(event):
+    #Adapted from Jerry's code
     print('request: {}'.format(json.dumps(event)))
-    query_params = event.get('queryStringParameters')
-    path_params = event.get('pathParameters')
-    request_body = {}
-    if 'body' in event and event['body'] != None:
-        request_body = json.loads(event['body']) # only works for json.dumps(body)
+    payload = API.parse_payload(event)
+    # get the user details from the user table, 
+    
+    # get the basiq id
+    basiq = Basiq(basiq_id="11103cba-4a08-4397-84a5-22ac125ed2f6")
 
-    result = {} #do stuff here to get result
-    return result
+    access_token = basiq.get_auth_token()
+
+    response = basiq.get_all_transactions_for_user(access_token)
+
+    return response
 
 
 @handle_error_response
@@ -37,4 +42,5 @@ if __name__ == "__main__":
         'body' : json.dumps(body)
     }
 
-    handler(event, context=None)
+    resp = handler(event, context=None)
+    print(resp)

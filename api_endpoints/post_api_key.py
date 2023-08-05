@@ -2,23 +2,17 @@ import json
 import os
 from Shared.errors import handle_error_response
 from Shared.api import API
-
+from Shared.auth import Authorizer
 
 def main(event):
-    print('request: {}'.format(json.dumps(event)))
-    query_params = event.get('queryStringParameters')
-    path_params = event.get('pathParameters')
-    request_body = {}
-    if 'body' in event and event['body'] != None:
-        request_body = json.loads(event['body']) # only works for json.dumps(body)
-
-    result = {} #do stuff here to get result
+    payload = API.parse_payload(event)
+    result = Authorizer.create_api_key(key_request=payload["body"])
     return result
-
 
 @handle_error_response
 def handler(event, context):
     return main(event)
+
         
     
 if __name__ == "__main__":
